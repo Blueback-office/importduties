@@ -32,6 +32,7 @@ class StockLandedCost(models.Model):
             stock_move_obj = self.env['stock.move'].search([('id', '=', rec.get('move_id'))])
             rec['excise_percentage'] = stock_move_obj.product_id.excise_percentage
             rec['duty_percentage'] = stock_move_obj.product_id.duty_percentage
+            rec['po_cost'] = stock_move_obj.stock_valuation_layer_ids.mapped('value')[0]
         return result
 
     def compute_landed_cost(self):
@@ -56,8 +57,8 @@ class StockLandedCost(models.Model):
                 total_weight += val_line_values.get('weight', 0.0)
                 total_volume += val_line_values.get('volume', 0.0)
 
-                total_excise += val_line_values.get('excise_percentage',0.0)*val_line_values.get('former_cost',0.0)
-                total_duty += val_line_values.get('duty_percentage', 0.0)*val_line_values.get('former_cost',0.0)
+                total_excise += val_line_values.get('excise_percentage',0.0)*val_line_values.get('po_cost',0.0)
+                total_duty += val_line_values.get('duty_percentage', 0.0)*val_line_values.get('po_cost',0.0)
                 former_cost = val_line_values.get('former_cost', 0.0)
                 # round this because former_cost on the valuation lines is also rounded
                 total_cost += cost.currency_id.round(former_cost)
@@ -85,11 +86,11 @@ class StockLandedCost(models.Model):
 
                         elif line.split_method == 'by_excise':
                             per_unit = (line.price_unit / total_excise)
-                            value = valuation.excise_percentage * valuation.former_cost * per_unit
+                            value = valuation.excise_percentage * valuation.po_cost * per_unit
 
                         elif line.split_method == 'by_duty' and total_duty:
                             per_unit = (line.price_unit / total_duty)
-                            value = valuation.duty_percentage * valuation.former_cost * per_unit
+                            value = valuation.duty_percentage * valuation.po_cost * per_unit
                         else:
                             value = (line.price_unit / total_line)
                         if rounding:
