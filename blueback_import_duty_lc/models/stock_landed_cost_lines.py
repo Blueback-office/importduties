@@ -114,5 +114,6 @@ class AdjustmentLines(models.Model):
 
     excise_percentage = fields.Float(string='Excise Percentage')
     duty_percentage = fields.Float(string='Duty Percentage')
+    po_cost = fields.Float(string='Purchase Order Cost')
 
 
