@@ -84,7 +84,7 @@ class StockLandedCost(models.Model):
                             per_unit = (line.price_unit / total_cost)
                             value = valuation.former_cost * per_unit
 
-                        elif line.split_method == 'by_excise':
+                        elif line.split_method == 'by_excise' and total_excise:
                             per_unit = (line.price_unit / total_excise)
                             value = valuation.excise_percentage * valuation.po_cost * per_unit
 
